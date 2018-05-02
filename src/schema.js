@@ -31,7 +31,9 @@ import {
     typeDefs: `
       type User {
         id: ID!
-        email: String
+        email: String!
+        name : String!
+        address : String!
       }
   
       type Query {
