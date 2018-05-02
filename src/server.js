@@ -1,18 +1,64 @@
 import express from 'express';
+import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import bodyParser from 'body-parser';
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
-import schema from './schema';
-const app = express();
-app.use(
-  '/graphiql',
-  graphiqlExpress({
-    endpointURL: '/graphql'
-  })
-);
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema: schema }));
 
-app.use('/', (req, res, next) =>{
-    // we can use this as the entry point for our react app
-    res.send('hello there');
+import * as Schema from './schema';
+
+const PORT = 3000;
+const server = express();
+
+
+
+const schemaFunction =
+  Schema.schemaFunction ||
+  function() {
+    return Schema.schema;
+  };
+let schema;
+const rootFunction =
+  Schema.rootFunction ||
+  function() {
+    return schema.rootValue;
+  };
+const contextFunction =
+  Schema.context ||
+  function(headers, secrets) {
+    return Object.assign(
+      {
+        headers: headers,
+      },
+      secrets
+    );
+  };
+
+server.use('/graphql', bodyParser.json(), graphqlExpress(async (request) => {
+  if (!schema) {
+    schema = schemaFunction(process.env)
+  }
+  const context = await contextFunction(request.headers, process.env);
+  const rootValue = await rootFunction(request.headers, process.env);
+
+  return {
+    schema: await schema,
+    rootValue,
+    context,
+    tracing: true,
+  };
+}));
+
+server.use('/graphiql', graphiqlExpress({
+  endpointURL: '/graphql',
+  query: `query {
+  chirpById(id: "fakeChirpId") {
+    text
+    author {
+      email
+    }
+  }
+}`,
+}));
+
+server.listen(PORT, () => {
+  console.log(`GraphQL Server is now running on http://localhost:${PORT}/graphql`);
+  console.log(`View GraphiQL at http://localhost:${PORT}/graphiql`);
 });
-export default app;

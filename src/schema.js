@@ -1,77 +1,97 @@
-import { makeExecutableSchema } from 'graphql-tools';
-// const TypeDefinition = `
-//   type RootQuery {
-//     hello_world: String!
-//    }
-// `;
-// const SchemaDefinition = `
-//   schema {
-//     query: RootQuery
-//   }
-// `;
+// Welcome to Launchpad!
+// Log in to edit and save pads, and run queries in GraphiQL on the right.
 
-const typeDefs = `
-  type Author {
-    id: Int!
-    firstName: String
-    lastName: String
-    posts: [Post] # the list of Posts by this author
-  }
-
-  type Post {
-    id: Int!
-    title: String
-    author: Author
-    votes: Int
-  }
-
-  # the schema allows the following query:
-  type Query {
-    posts: [Post]
-    author(id: Int!): Author
-  }
-
-  # this schema allows the following mutation:
-  type Mutation {
-    upvotePost (
-      postId: Int!
-    ): Post
-  }
-`;
-
-const resolvers = {
-  Query: {
-    posts: () => posts,
-    author: (_, { id }) => find(authors, { id: id }),
-  },
-  Mutation: {
-    upvotePost: (_, { postId }) => {
-      const post = find(posts, { id: postId });
-      if (!post) {
-        throw new Error(`Couldn't find post with id ${postId}`);
+import {
+    makeExecutableSchema,
+    addMockFunctionsToSchema,
+    mergeSchemas,
+  } from 'graphql-tools';
+  
+  // Mocked chirp schema; we don't want to worry about schema implementation
+  // right now since we're just demonstrating schema stitching
+  const chirpSchema = makeExecutableSchema({
+    typeDefs: `
+      type Chirp {
+        id: ID!
+        text: String
+        authorId: ID!
       }
-      post.votes += 1;
-      return post;
-    },
-  },
-  Author: {
-    posts: (author) => filter(posts, { authorId: author.id }),
-  },
-  Post: {
-    author: (post) => find(authors, { id: post.authorId }),
-  },
-};
-
-// export default makeExecutableSchema({
-//  typeDefs: [SchemaDefinition, TypeDefinition],
-//  resolvers: {
-//    RootQuery: {
-//      hello_world: () => "Hi from GraphQL!"
-//    }
-//  }
-// });
-
-export default makeExecutableSchema({
-    typeDefs : typeDefs,
-    resolvers : resolvers
-});
+  
+      type Query {
+        chirpById(id: ID!): Chirp
+        chirpsByAuthorId(authorId: ID!): [Chirp]
+      }
+    `
+  });
+  
+  addMockFunctionsToSchema({ schema: chirpSchema });
+  
+  // Mocked author schema
+  const authorSchema = makeExecutableSchema({
+    typeDefs: `
+      type User {
+        id: ID!
+        email: String
+      }
+  
+      type Query {
+        userById(id: ID!): User
+      }
+    `
+  });
+  
+  // This function call adds the mocks to your schema!
+  addMockFunctionsToSchema({ schema: authorSchema });
+  
+  // Extend schema with new fields
+  const linkTypeDefs = `
+    extend type User {
+      chirps: [Chirp]
+    }
+  
+    extend type Chirp {
+      author: User
+    }
+  `;
+  
+  export const schema = mergeSchemas({
+    schemas: [chirpSchema, authorSchema, linkTypeDefs],
+    resolvers: mergeInfo => ({
+      User: {
+        chirps: {
+          fragment: `fragment UserFragment on User { id }`,
+          resolve(parent, args, context, info) {
+            const authorId = parent.id;
+            return mergeInfo.delegate(
+              'query',
+              'chirpsByAuthorId',
+              {
+                authorId,
+              },
+              context,
+              info,
+            );
+          },
+        },
+      },
+      Chirp: {
+        author: {
+          fragment: `fragment ChirpFragment on Chirp { authorId }`,
+          resolve(parent, args, context, info) {
+            const id = parent.authorId;
+            return mergeInfo.delegate(
+              'query',
+              'userById',
+              {
+                id,
+              },
+              context,
+              info,
+            );
+          },
+        },
+      },
+    }),
+  });
+  
+  
