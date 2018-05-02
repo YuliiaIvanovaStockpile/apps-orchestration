@@ -1,0 +1,12 @@
+{
+    "plugins" : ["transform-react-jsx"],
+    "ignore": [
+        "foo.js",
+        "bar/**/*.js"
+    ],
+    "env" : {
+        "production" : {
+            "plugins": ["transform-react-constant-elements"]
+        }
+    }
+}
