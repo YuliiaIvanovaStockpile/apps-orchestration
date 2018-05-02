@@ -1,6 +1,3 @@
-// Welcome to Launchpad!
-// Log in to edit and save pads, and run queries in GraphiQL on the right.
-
 import {
     makeExecutableSchema,
     addMockFunctionsToSchema,
