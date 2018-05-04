@@ -1,96 +1,92 @@
-import {
-    makeExecutableSchema,
-    addMockFunctionsToSchema,
-    mergeSchemas,
-  } from 'graphql-tools';
-  
-  // Mocked chirp schema; we don't want to worry about schema implementation
-  // right now since we're just demonstrating schema stitching
-  const chirpSchema = makeExecutableSchema({
-    typeDefs: `
-      type Chirp {
-        id: ID!
-        text: String
-        authorId: ID!
-      }
-  
-      type Query {
-        chirpById(id: ID!): Chirp
-        chirpsByAuthorId(authorId: ID!): [Chirp]
-      }
-    `
-  });
-  
-  addMockFunctionsToSchema({ schema: chirpSchema });
-  
-  // Mocked author schema
-  const authorSchema = makeExecutableSchema({
-    typeDefs: `
-      type User {
-        id: ID!
-        email: String!
-        name : String!
-        address : String!
-      }
-  
-      type Query {
-        userById(id: ID!): User
-      }
-    `
-  });
-  
-  // This function call adds the mocks to your schema!
-  addMockFunctionsToSchema({ schema: authorSchema });
-  
-  // Extend schema with new fields
-  const linkTypeDefs = `
-    extend type User {
-      chirps: [Chirp]
+const { makeExecutableSchema } = require("graphql-tools");
+
+const fetch = require("node-fetch");
+
+const gql = String.raw;
+
+// Construct a schema, using GraphQL schema language
+const typeDefs = gql`
+  type Query {
+    myFavoriteArtists: [Artist]
+  }
+
+  type Artist @cacheControl(maxAge: 60) {
+    id: ID
+    name: String
+    image: String
+    twitterUrl: String
+    events: [Event]
+  }
+
+  type Event @cacheControl(maxAge: 60) {
+    name: String
+    image: String
+    startDateTime: String
+  }
+`;
+
+const resolvers = {
+  Query: {
+    myFavoriteArtists: (root, args, context) => {
+      return Promise.all(
+        myFavoriteArtists.map(({ name, id }) => {
+          return fetch(
+            `https://app.ticketmaster.com/discovery/v2/attractions/${id}.json?apikey=${
+              context.secrets.TM_API_KEY
+            }`
+          )
+            .then(res => res.json())
+            .then(data => {
+              console.log(data);
+              return Object.assign({ name, id }, data);
+            });
+        })
+      );
     }
-  
-    extend type Chirp {
-      author: User
+  },
+  Artist: {
+    twitterUrl: artist => {
+      return artist.externalLinks.twitter[0].url;
+    },
+    image: artist => artist.images[0].url,
+    events: (artist, args, context) => {
+      return fetch(
+        `https://app.ticketmaster.com/discovery/v2/events.json?size=10&apikey=${
+          context.secrets.TM_API_KEY
+        }&attractionId=${artist.id}`
+      )
+        .then(res => res.json())
+        .then(data => {
+          // Sometimes, there are no upcoming events
+          return (data && data._embedded && data._embedded.events) || [];
+        });
     }
-  `;
-  
-  export const schema = mergeSchemas({
-    schemas: [chirpSchema, authorSchema, linkTypeDefs],
-    resolvers: mergeInfo => ({
-      User: {
-        chirps: {
-          fragment: `fragment UserFragment on User { id }`,
-          resolve(parent, args, context, info) {
-            const authorId = parent.id;
-            return mergeInfo.delegate(
-              'query',
-              'chirpsByAuthorId',
-              {
-                authorId,
-              },
-              context,
-              info,
-            );
-          },
-        },
-      },
-      Chirp: {
-        author: {
-          fragment: `fragment ChirpFragment on Chirp { authorId }`,
-          resolve(parent, args, context, info) {
-            const id = parent.authorId;
-            return mergeInfo.delegate(
-              'query',
-              'userById',
-              {
-                id,
-              },
-              context,
-              info,
-            );
-          },
-        },
-      },
-    }),
-  });
-  
-  
+  },
+  Event: {
+    image: event => event.images[0].url,
+    startDateTime: event => event.dates.start.dateTime
+  }
+};
+
+// Required: Export the GraphQL.js schema object as "schema"
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers
+});
+
+const myFavoriteArtists = [
+  {
+    name: "Kansas",
+    id: "K8vZ9171C-f"
+  },
+  {
+    name: "Lil Yachty",
+    id: "K8vZ9174v57"
+  },
+  {
+    name: "Jason Mraz",
+    id: "K8vZ9171CVV"
+  }
+];
+
+module.exports = { schema };
