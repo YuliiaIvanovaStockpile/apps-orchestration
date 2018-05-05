@@ -10,4 +10,5 @@ type User {
 
 type Query {
     findUser(id: ID!): User
+    getUsers: [User]
 }

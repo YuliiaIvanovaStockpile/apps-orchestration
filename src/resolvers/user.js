@@ -33,6 +33,9 @@ export default {
             const id = args.id;
             const user = find(myFavoriteArtists, { 'id' : id });
             return user;
+        },
+        getUsers: (root, args, context) => {
+            return myFavoriteArtists;
         }
     }
 }
