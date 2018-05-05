@@ -1,0 +1,18 @@
+type Artist {
+    id: ID
+    name: String!
+    image: String
+    twitterUrl: String
+    events: [Event]
+}
+
+type Event {
+    name: String
+    image: String
+    startDateTime: String
+}
+
+type Query {
+    myFavoriteArtists: [Artist]
+    myFavoriteArtist(id: ID!): Artist
+}

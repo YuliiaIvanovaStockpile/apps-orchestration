@@ -1,0 +1,13 @@
+
+type User {
+    id: ID!
+    first_name: String!
+    last_name: String!
+    address: Address
+    email: String!
+    password: String!
+}
+
+type Query {
+    findUser(id: ID!): User
+}

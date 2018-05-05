@@ -1,0 +1,22 @@
+type Validator {
+    id: ID
+    error_message: [ErrorMessage]
+    regex_pattern: String
+}
+
+type OnboardingField {
+    id: ID
+    type: String
+    name: String
+    text: String
+    placeholder: String
+}
+
+type Onboarding {
+    session: ID
+    onboarding_fields: [OnboardingField]
+}
+
+type Query {
+    getOnboardingFields: Onboarding
+}

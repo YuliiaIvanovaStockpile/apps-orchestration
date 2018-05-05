@@ -1,0 +1,5 @@
+type ErrorMessage {
+    id: ID
+    message: String
+    code: Int
+}
