@@ -1,6 +1,13 @@
 import { find } from 'lodash';
-import { StatusMessage } from './common';
-import { Address, AddressInput } from './address';
+import { 
+  User,
+  UserInput,
+  UserInputMessage,
+  Address, 
+  AddressInput,
+  StatusMessage 
+} from '../common/index';
+
 
 const myFavoriteArtists = [
   {
@@ -28,30 +35,6 @@ const myFavoriteArtists = [
     password: "moresecret"
   }
 ];
-
-class User {
-  constructor(firstName, lastName, address, email, password){
-    this.id = id;
-    this.first_name = firstName;
-    this.last_name = lastName;
-    this.address = address;
-    this.email = email;
-    this.password = password;
-  }
-}
-
-class UserInput extends User {
-  constructor(firstName, lastName, address, email, password){
-    super(firstname, lastname, address, email, password);
-  }
-}
-
-class UserInputMessage {
-  constructor(status, description){
-    this.status = status;
-    this.description = description;
-  }
-}
 
 export default {
   Query: {

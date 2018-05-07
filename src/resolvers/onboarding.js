@@ -46,7 +46,6 @@ export default {
     Query: {
         getOnboardingFields: (root, args, context) => {
             console.log('onboarding fields ', onboarding);
-            
             return onboarding;
         }
     }
