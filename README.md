@@ -42,17 +42,29 @@ query {
     }
   }
 }
+```
 
-
-mutation{
-  addUser(input:{
-    author: "Everett",
-    content: "Testing"
+## Sample Mutation
+```
+mutation {
+  addUser(input: {
+    first_name: "Everett"
+    last_name:"Quebral",
+    address: {
+      address1: "7202 Basking Ridge Ave",
+      city: "San Jose",
+      state: "CA",
+      zip: "95138",
+      country: "USA"
+    },
+    email: "everett@stockpile.com",
+    password: "secret"
   }){
-    status
+    status_code
+    message
     description
   }
-} 
+}
 ```
 
 

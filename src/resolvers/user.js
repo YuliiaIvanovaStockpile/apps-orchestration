@@ -1,4 +1,6 @@
 import { find } from 'lodash';
+import { StatusMessage } from './common';
+import { Address, AddressInput } from './address';
 
 const myFavoriteArtists = [
   {
@@ -38,10 +40,9 @@ class User {
   }
 }
 
-class UserInput {
-  constructor(content, author ){
-    this.content = content;
-    this.author = author;
+class UserInput extends User {
+  constructor(firstName, lastName, address, email, password){
+    super(firstname, lastname, address, email, password);
   }
 }
 
@@ -68,8 +69,10 @@ export default {
       // const user = new UserInput(content, author);
       // console.log(user);
       console.log(args);
-      const userInputMessage = new UserInputMessage(200, 'SUCCESS');
-      return userInputMessage;
+      const user = args.input;
+      console.log(user);
+      const statusMessage = new StatusMessage(200, 'SUCCESS', 'Successfully entered the new User');
+      return statusMessage;
     }
   }
 }
