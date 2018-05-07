@@ -30,4 +30,29 @@ npm start
 
 ## Code Structure
 
+## Sample Queries
+```
+query {
+  getOnboardingFields{
+    onboarding_fields {
+      type
+      name
+      text
+      placeholder
+    }
+  }
+}
+
+
+mutation{
+  addUser(input:{
+    author: "Everett",
+    content: "Testing"
+  }){
+    status
+    description
+  }
+} 
+```
+
 

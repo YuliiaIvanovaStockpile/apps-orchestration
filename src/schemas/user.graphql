@@ -12,3 +12,17 @@ type Query {
     findUser(id: ID!): User
     getUsers: [User]
 }
+
+type UserInputMessage {
+    status: Int
+    description: String
+}
+
+input UserInput {
+    content: String
+    author: String
+}
+
+type Mutation {
+    addUser(input: UserInput): UserInputMessage
+}
