@@ -24,11 +24,39 @@ npm install
 ```
 
 ## Running
+
+### Development
 ```
-npm start
+npm run dev
+```
+
+### QA
+```
+npm run qa
+```
+
+### PRODUCTION
+```
+TODO
 ```
 
 ## Code Structure
+It is very important that the code are organized to  understand the resolvers and schemas.
+```
+-- src
+  -- resolvers
+    -- onboarding.js
+    -- user.js
+  -- schemas
+    -- validator.graphql
+    -- onboarding.graphql
+    -- address.graphql
+    -- user.graphql
+  -- server.js
+  -- schema.js
+-- package.json
+-- README.md
+```
 
 ## Sample Queries
 ```
@@ -66,5 +94,9 @@ mutation {
   }
 }
 ```
+
+## Authentication
+
+
 
 

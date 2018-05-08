@@ -44,6 +44,8 @@ export default {
       return user;
     },
     getUsers: (root, args, context) => {
+      console.log('CONTEXT ', context);
+      console.log('REQUEST ', JSON.stringify(context, null, 2));
       return myFavoriteArtists;
     }
   },
@@ -51,9 +53,10 @@ export default {
     addUser: (root, args, context) => {
       // const user = new UserInput(content, author);
       // console.log(user);
-      console.log(args);
+      console.log('ARGs', args);
       const user = args.input;
       console.log(user);
+      console.log('CONTEXT ', context);
       const statusMessage = new StatusMessage(200, 'SUCCESS', 'Successfully entered the new User');
       return statusMessage;
     }
