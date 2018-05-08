@@ -1,15 +1,17 @@
 type Validator {
-    id: ID
-    error_message: [ErrorMessage]
-    regex_pattern: String
+    type: String
+    message: String
+    regex: String
 }
 
 type OnboardingField {
     id: ID
+    order: Int
     type: String
     name: String
     text: String
     placeholder: String
+    validators: [Validator]
 }
 
 type Onboarding {
