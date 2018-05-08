@@ -1,0 +1,37 @@
+enum ValidatorType {
+    PATTERN_VALIDATOR
+    REQUIRED_VALIDATOR
+    VALUE_VALIDATOR
+}
+
+type ValueValidator {
+    type: ValidatorType
+    min: Float
+    max: Float
+    message: String
+}
+
+type RequiredValidator {
+    type: ValidatorType
+    message: String
+}
+
+type PatternValidator {
+    type: ValidatorType
+    regex: String
+    message: String
+}
+
+enum Validators {
+    ValueValidator
+    RequiredValidator
+    PatternValidator
+}
+
+type Validator {
+    required_validator: [RequiredValidator]
+    value_validator: [ValueValidator]
+    pattern_validator: [PatternValidator]
+    message: String
+}
+

@@ -8,6 +8,13 @@ type Address {
     country: String!
 }
 
+fragment addressDetails on Address {
+    address1
+    city
+    state
+    zip
+}
+
 input AddressInput {
     address1: String!
     address2: String
